@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+
+COMMANDS_DIR="/workspace/commands"
+
+NAME=""
+SYNTAX=""
+DESCRIPTION=""
+DETAILS=""
+
+MATCHES=()
+EXAMPLES=()
+DESCRIPTIONS=()
+
+load_command() {
+    NAME=""
+    SYNTAX=""
+    DESCRIPTION=""
+    DETAILS=""
+
+    MATCHES=()
+    EXAMPLES=()
+    DESCRIPTIONS=()
+
+    source "$1"
+}
+
+list_commands() {
+    for script in "$COMMANDS_DIR"/*.sh; do
+        load_command "$script"
+        printf "  %-10s %s\n" "$NAME" "$DESCRIPTION"
+    done
+}
+
+example() {
+    if [[ $# -eq 2 ]]; then
+        MATCHES+=("$1")
+        EXAMPLES+=("$1")
+        DESCRIPTIONS+=("$2")
+    else
+        MATCHES+=("$1")
+        EXAMPLES+=("$1 $2")
+        DESCRIPTIONS+=("$3")
+    fi
+}
+
+find_example() {
+    local args="$1"
+
+    MATCH=""
+
+    for ((i=0; i<${#MATCHES[@]}; i++)); do
+        if [[ "${MATCHES[$i]}" == "$args" ]]; then
+            MATCH="${DESCRIPTIONS[$i]}"
+            return
+        fi
+    done
+}
+
+show_example() {
+    load_command "$1"
+    shift
+
+    find_example "$*"
+
+    echo
+    echo "[COMMAND]"
+    echo
+    echo "\$ $NAME $*"
+
+    if [[ -n "$MATCH" ]]; then
+        echo
+        echo "[DESCRIPTION]"
+        echo
+        echo "$MATCH"
+    fi
+}
+
+show_help() {
+    load_command "$1"
+
+    echo
+    echo "[COMMAND]"
+    echo
+    echo "$NAME"
+    echo
+    echo "[SYNTAX]"
+    echo
+    echo "$SYNTAX"
+    echo
+    echo "[DESCRIPTION]"
+    echo
+    echo "$DESCRIPTION"
+    echo
+    echo "[DETAILS]"
+    echo
+    echo "$DETAILS"
+    echo
+    echo "[EXAMPLES]"
+    echo
+
+    local width=0
+
+    for example in "${EXAMPLES[@]}"; do
+        (( ${#NAME} + 1 + ${#example} > width )) && width=$(( ${#NAME} + 1 + ${#example} ))
+    done
+
+    for ((i=0; i<${#EXAMPLES[@]}; i++)); do
+        printf "  %-*s  %s\n" \
+            "$width" \
+            "$NAME ${EXAMPLES[$i]}" \
+            "${DESCRIPTIONS[$i]}"
+    done
+}
+
+snapshot() {
+    find . | sort
+}
+
+new_entries() {
+    comm -13 "$1" "$2"
+}
+
+execute() {
+    local line="$1"
+
+    local cmd="${line%% *}"
+    local args=""
+
+    [[ "$line" != "$cmd" ]] && args="${line#"$cmd "}"
+
+    if [[ -n "$args" ]]; then
+        read -ra argv <<< "$args"
+    else
+        argv=()
+    fi
+
+    echo "[RESULT]"
+    echo
+
+    if declare -F sandbox_effect >/dev/null; then
+        sandbox_effect "${argv[@]}"
+    else
+        command -p "$cmd" "${argv[@]}"
+        echo
+    fi
+}
+
+case $# in
+    0)
+        echo "Available commands:"
+        list_commands
+        ;;
+    1)
+        SCRIPT="$COMMANDS_DIR/$1.sh"
+
+        if [[ ! -f "$SCRIPT" ]]; then
+            echo "Unknown command: $1"
+            exit 1
+        fi
+
+        show_help "$SCRIPT"
+
+        echo
+
+        if [[ "${MATCHES[0]}" == "" ]]; then
+            execute "$1"
+        else
+            echo "Add arguments to execute the command, for example:"
+            echo "  $NAME ${EXAMPLES[0]}"
+            echo
+        fi
+        ;;
+    *)
+        SCRIPT="$COMMANDS_DIR/$1.sh"
+
+        if [[ ! -f "$SCRIPT" ]]; then
+            echo "Unknown command: $1"
+            exit 1
+        fi
+
+        FULL_COMMAND="$*"
+
+        shift
+        show_example "$SCRIPT" "$@"
+
+        echo
+        execute "$FULL_COMMAND"
+        echo
+        ;;
+esac

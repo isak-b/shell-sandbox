@@ -1,46 +1,25 @@
 #!/usr/bin/env bash
-source "$(dirname "$0")/../helpers/run.sh"
+# Docs: https://man7.org/linux/man-pages/man1/ls.1.html
 
-# ls [options] [file|dir]
+NAME="ls"
+SYNTAX="ls [OPTION]... [FILE]..."
+DESCRIPTION="List files and directories."
+DETAILS="Use ls to inspect the contents of directories. By default, it lists the
+current working directory, but you can also specify another directory.
 
-echo "=== ls: List files in the current directory ==="
-run ls
+It is one of the most frequently used Linux commands."
 
-echo "=== ls: List files in a specific directory ==="
-run ls /Users
-
-echo "=== -l: long listing format ==="
-run ls -l
-
-echo "=== -a: all files (including hidden files) ==="
-run ls -a
-
-echo "=== -h: human-readable file sizes ==="
-run ls -lh
-
-echo "=== -la: long listing + all files ==="
-run ls -la
-
-echo "=== -t: sort by modification time ==="
-run ls -lt
-
-echo "=== -r: reverse the sort order ==="
-run ls -lr
-
-echo "=== -S: sort by file size ==="
-run ls -lS
-
-echo "=== -R: recursive (include subdirectories) ==="
-run ls -R
-
-echo "=== -A: almost all (exclude . and ..) ==="
-run ls -A
-
-echo "=== -F: classify entries (/ for dirs, * for executables, etc.) ==="
-run ls -F
-
-echo "=== -i: show inode numbers ==="
-run ls -i
-
-echo "=== -1: one entry per line ==="
-run ls -1
+example "" "List files in the current directory."
+example "/workspace" "List files in a specific directory."
+example "-l" "Long listing format."
+example "-a" "All files (including hidden files)."
+example "-lh" "Human-readable file sizes."
+example "-la" "Long listing + all files."
+example "-lt" "Sort by modification time."
+example "-lr" "Reverse the sort order."
+example "-lS" "Sort by file size."
+example "-R" "Recursively list subdirectories."
+example "-A" "Almost all (exclude . and ..)."
+example "-F" "Classify entries (/ for dirs, * for executables, etc.)."
+example "-i" "Show inode numbers."
+example "-1" "One entry per line."
