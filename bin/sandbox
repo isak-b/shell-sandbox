@@ -31,6 +31,16 @@ list_commands() {
     done
 }
 
+get_flags() {
+    local flags=()
+
+    for arg in "$@"; do
+        [[ "$arg" == -* ]] && flags+=("$arg")
+    done
+
+    printf '%s ' "${flags[@]}"
+}
+
 example() {
     if [[ $# -eq 2 ]]; then
         MATCHES+=("$1")
@@ -60,7 +70,8 @@ show_example() {
     load_command "$1"
     shift
 
-    find_example "$*"
+    flags=$(get_flags "$@")
+    find_example "${flags% }"
 
     echo
     echo "[COMMAND]"
