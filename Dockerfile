@@ -37,15 +37,12 @@ ENV PATH="/workspace/bin:${PATH}"
 RUN cat >> /root/.bashrc <<'EOF'
 echo "Welcome to shell-sandbox!
 
-Available commands:
+Supported commands:
   sandbox               Browse available commands
-  sandbox ls            Run ls
-  sandbox mkdir         Run mkdir
+  ls                    List files and directories.
+  mkdir                 Create directories.
+  touch                 Create empty files or update file timestamps.
   exit                  Exit the sandbox
-
-You can also type Linux commands directly, for example:
-  ls
-  mkdir
 "
 EOF
 
