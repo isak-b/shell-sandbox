@@ -44,6 +44,7 @@ Supported commands:
   mkdir                 Create directories.
   pwd                   Print the current working directory.
   touch                 Create empty files or update file timestamps.
+  tree                  Display directories and files as a tree.
   exit                  Exit the sandbox
 "
 EOF
