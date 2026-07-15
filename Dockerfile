@@ -35,12 +35,14 @@ RUN chmod +x /workspace/bin/sandbox && \
 ENV PATH="/workspace/bin:${PATH}"
 
 RUN cat >> /root/.bashrc <<'EOF'
+enable -n pwd
 echo "Welcome to shell-sandbox!
 
 Supported commands:
   sandbox               Browse available commands
   ls                    List files and directories.
   mkdir                 Create directories.
+  pwd                   Print the current working directory.
   touch                 Create empty files or update file timestamps.
   exit                  Exit the sandbox
 "
