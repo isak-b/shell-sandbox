@@ -15,10 +15,10 @@ an absolute path is specified.
 Docs: https://man7.org/linux/man-pages/man1/mkdir.1.html"
 
 example "some_dir" "Create a directory."
-example "-v" "another_dir" "Verbose (print a message for each created directory)."
-example "-p" "parent/child/grandchild" "Parents (create parent directories as needed)."
-example "-m" "700 private_dir" "Mode (set directory permissions)."
-example "-pv" "another/path/to/directory" "Parents + verbose."
+example "-v" "another_dir" "Verbose mode (print a message for each created directory)."
+example "-p" "parent/child/grandchild" "Create parent directories as needed."
+example "-m" "700 private_dir" "Set directory permissions."
+example "-pv" "another/path/to/directory" "Create parent directories + verbose."
 
 sandbox_effect() {
     before=$(mktemp)
