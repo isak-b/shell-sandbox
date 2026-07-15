@@ -14,19 +14,14 @@ an absolute path is specified.
 
 Docs: https://man7.org/linux/man-pages/man1/mkdir.1.html"
 
-example "some_dir" "Create a directory."
-example "-v" "another_dir" "Verbose mode (print a message for each created directory)."
-example "-p" "parent/child/grandchild" "Create parent directories as needed."
-example "-m" "700 private_dir" "Set directory permissions."
-example "-pv" "another/path/to/directory" "Create parent directories + verbose."
+example "mkdir some_dir" "Create a directory."
+example "-p parent/child/grandchild" "Create parent directories as needed."
+example "-m 700 private_dir" "Set directory permissions."
+
+flag "-v" "Verbose mode (print a message for each created directory)."
+flag "-p" "Create parent directories as needed."
+flag "-m" "Set directory permissions."
 
 sandbox_effect() {
-    before=$(mktemp)
-    after=$(mktemp)
-
-    snapshot > "$before"
-    command -p mkdir "$@"
-    snapshot > "$after"
-    new_entries "$before" "$after"
-    rm "$before" "$after"
+    command -p mkdir -v "$@"
 }

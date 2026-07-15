@@ -7,9 +7,11 @@ SYNTAX=""
 DESCRIPTION=""
 DETAILS=""
 
-MATCHES=()
 EXAMPLES=()
-DESCRIPTIONS=()
+EXAMPLE_DESCRIPTIONS=()
+
+FLAGS=()
+FLAG_DESCRIPTIONS=()
 
 load_command() {
     NAME=""
@@ -17,9 +19,11 @@ load_command() {
     DESCRIPTION=""
     DETAILS=""
 
-    MATCHES=()
     EXAMPLES=()
-    DESCRIPTIONS=()
+    EXAMPLE_DESCRIPTIONS=()
+
+    FLAGS=()
+    FLAG_DESCRIPTIONS=()
 
     source "$1"
 }
@@ -31,59 +35,67 @@ list_commands() {
     done
 }
 
-get_flags() {
-    local flags=()
-
-    for arg in "$@"; do
-        [[ "$arg" == -* ]] && flags+=("$arg")
-    done
-
-    printf '%s ' "${flags[@]}"
-}
-
 example() {
-    if [[ $# -eq 2 ]]; then
-        MATCHES+=("$1")
-        EXAMPLES+=("$1")
-        DESCRIPTIONS+=("$2")
-    else
-        MATCHES+=("$1")
-        EXAMPLES+=("$1 $2")
-        DESCRIPTIONS+=("$3")
-    fi
+    EXAMPLES+=("$1")
+    EXAMPLE_DESCRIPTIONS+=("$2")
 }
 
-find_example() {
-    local args="$1"
-
-    MATCH=""
-
-    for ((i=0; i<${#MATCHES[@]}; i++)); do
-        if [[ "${MATCHES[$i]}" == "$args" ]]; then
-            MATCH="${DESCRIPTIONS[$i]}"
-            return
-        fi
-    done
+flag() {
+    FLAGS+=("$1")
+    FLAG_DESCRIPTIONS+=("$2")
 }
 
 show_example() {
     load_command "$1"
     shift
 
-    flags=$(get_flags "$@")
-    find_example "${flags% }"
-
     echo
     echo "[COMMAND]"
     echo
     echo "\$ $NAME $*"
 
-    if [[ -n "$MATCH" ]]; then
-        echo
-        echo "[DESCRIPTION]"
-        echo
-        echo "$MATCH"
-    fi
+    echo
+    echo "[DESCRIPTION]"
+    echo
+    echo "$DESCRIPTION"
+
+    local printed=false
+    local parsed_flags=()
+
+    for arg in "$@"; do
+        [[ "$arg" != -* ]] && continue
+
+        parsed_flags=()
+
+        if [[ "$arg" == --* ]]; then
+            parsed_flags+=("$arg")
+        else
+            local chars="${arg#-}"
+
+            for ((i=0; i<${#chars}; i++)); do
+                parsed_flags+=("-${chars:i:1}")
+            done
+        fi
+
+        for parsed_flag in "${parsed_flags[@]}"; do
+            for ((i=0; i<${#FLAGS[@]}; i++)); do
+                [[ "${FLAGS[$i]}" == "$parsed_flag" ]] || continue
+
+                if ! $printed; then
+                    echo
+                    echo "[FLAGS]"
+                    echo
+                    printed=true
+                fi
+
+                printf "  %-8s %s\n" \
+                    "$parsed_flag" \
+                    "${FLAG_DESCRIPTIONS[$i]}"
+
+                break
+            done
+        done
+    done
 }
 
 show_help() {
@@ -93,34 +105,59 @@ show_help() {
     echo "[COMMAND]"
     echo
     echo "$NAME"
+
     echo
     echo "[SYNTAX]"
     echo
     echo "$SYNTAX"
+
     echo
     echo "[DESCRIPTION]"
     echo
     echo "$DESCRIPTION"
+
     echo
     echo "[DETAILS]"
     echo
     echo "$DETAILS"
-    echo
-    echo "[EXAMPLES]"
-    echo
 
-    local width=0
+    if [[ ${#FLAGS[@]} -gt 0 ]]; then
+        echo
+        echo "[FLAGS]"
+        echo
 
-    for example in "${EXAMPLES[@]}"; do
-        (( ${#NAME} + 1 + ${#example} > width )) && width=$(( ${#NAME} + 1 + ${#example} ))
-    done
+        local width=0
 
-    for ((i=0; i<${#EXAMPLES[@]}; i++)); do
-        printf "  %-*s  %s\n" \
-            "$width" \
-            "$NAME ${EXAMPLES[$i]}" \
-            "${DESCRIPTIONS[$i]}"
-    done
+        for flag in "${FLAGS[@]}"; do
+            (( ${#flag} > width )) && width=${#flag}
+        done
+
+        for ((i=0; i<${#FLAGS[@]}; i++)); do
+            printf "  %-*s  %s\n" \
+                "$width" \
+                "${FLAGS[$i]}" \
+                "${FLAG_DESCRIPTIONS[$i]}"
+        done
+    fi
+
+    if [[ ${#EXAMPLES[@]} -gt 0 ]]; then
+        echo
+        echo "[EXAMPLES]"
+        echo
+
+        local width=0
+
+        for example in "${EXAMPLES[@]}"; do
+            (( ${#example} > width )) && width=${#example}
+        done
+
+        for ((i=0; i<${#EXAMPLES[@]}; i++)); do
+            printf "  %-*s  %s\n" \
+                "$width" \
+                "${EXAMPLES[$i]}" \
+                "${EXAMPLE_DESCRIPTIONS[$i]}"
+        done
+    fi
 }
 
 snapshot() {
@@ -145,6 +182,7 @@ execute() {
         argv=()
     fi
 
+    echo
     echo "[RESULT]"
     echo
 
@@ -161,41 +199,43 @@ case $# in
         echo "Available commands:"
         list_commands
         ;;
+
     1)
         SCRIPT="$COMMANDS_DIR/$1.sh"
 
-        if [[ ! -f "$SCRIPT" ]]; then
+        [[ -f "$SCRIPT" ]] || {
             echo "Unknown command: $1"
             exit 1
-        fi
+        }
 
         show_help "$SCRIPT"
 
         echo
 
-        if [[ "${MATCHES[0]}" == "" ]]; then
+        FIRST_EXAMPLE="${EXAMPLES[0]}"
+
+        if [[ "$FIRST_EXAMPLE" == "$NAME" ]]; then
             execute "$1"
         else
             echo "Add arguments to execute the command, for example:"
-            echo "  $NAME ${EXAMPLES[0]}"
+            echo "  $FIRST_EXAMPLE"
             echo
         fi
         ;;
+
     *)
         SCRIPT="$COMMANDS_DIR/$1.sh"
 
-        if [[ ! -f "$SCRIPT" ]]; then
+        [[ -f "$SCRIPT" ]] || {
             echo "Unknown command: $1"
             exit 1
-        fi
+        }
 
         FULL_COMMAND="$*"
 
         shift
         show_example "$SCRIPT" "$@"
 
-        echo
         execute "$FULL_COMMAND"
-        echo
         ;;
 esac

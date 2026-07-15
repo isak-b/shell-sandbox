@@ -10,6 +10,7 @@ deleting files.
 
 Docs: https://man7.org/linux/man-pages/man1/pwd.1.html"
 
-example "" "Print the current working directory."
-example "-L" "Print the logical working directory, preserving any symbolic links that were used to get there."
-example "-P" "Print the physical directory, resolving any symbolic links that were used to get there."
+example "pwd" "Print the current working directory."
+
+flag "-L" "Print the logical working directory, preserving any symbolic links that were used to get there."
+flag "-P" "Print the physical directory, resolving any symbolic links that were used to get there."

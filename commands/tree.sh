@@ -12,8 +12,10 @@ structure easy to read.
 
 Docs: https://manpages.ubuntu.com/manpages/noble/en/man1/tree.1.html"
 
-example "" "Display the current directory as a tree."
-example "some_dir" "Display a specific directory."
-example "-L" "2" "Limit the display to two directory levels."
-example "-d" "Show only directories."
-example "-a" "Include hidden files and directories."
+example "tree" "Display the current directory as a tree."
+example "tree some_dir" "Display a specific directory."
+example "tree -L 2" "Limit the display to two directory levels."
+
+flag "-L" "Limit the display to two n levels, e.g., -L 2 -> two levels."
+flag "-d" "Show only directories."
+flag "-a" "Include hidden files and directories."
