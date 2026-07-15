@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Docs: https://man7.org/linux/man-pages/man1/ls.1.html
 
 NAME="ls"
 SYNTAX="ls [OPTION]... [FILE]..."
@@ -7,7 +6,9 @@ DESCRIPTION="List files and directories."
 DETAILS="Use ls to inspect the contents of directories. By default, it lists the
 current working directory, but you can also specify another directory.
 
-It is one of the most frequently used Linux commands."
+It is one of the most frequently used Linux commands.
+
+Docs: https://man7.org/linux/man-pages/man1/ls.1.html"
 
 example "" "List files in the current directory."
 example "/workspace" "List files in a specific directory."

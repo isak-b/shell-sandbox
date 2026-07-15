@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Docs: https://man7.org/linux/man-pages/man1/mkdir.1.html
 
 NAME="mkdir"
 SYNTAX="mkdir [OPTION]... DIRECTORY..."
@@ -11,7 +10,9 @@ parent directories do not exist, the command fails unless you use the
 -p option.
 
 Directories are created relative to the current working directory unless
-an absolute path is specified."
+an absolute path is specified.
+
+Docs: https://man7.org/linux/man-pages/man1/mkdir.1.html"
 
 example "some_dir" "Create a directory."
 example "-v" "another_dir" "Verbose (print a message for each created directory)."
